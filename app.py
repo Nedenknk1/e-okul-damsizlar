@@ -6,7 +6,6 @@ app = Flask(__name__)
 
 USERS_FILE = "users.json"
 
-# users.json yoksa oluştur ve başlangıç kullanıcılarını ekle
 if not os.path.exists(USERS_FILE):
     users = {
         "Talha": {"password":"0627","role":"admin","grades":{}},
@@ -26,23 +25,21 @@ if not os.path.exists(USERS_FILE):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(users, f, ensure_ascii=False, indent=2)
 
-# users.json'dan kullanıcıları yükle
 def load_users():
     with open(USERS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# users.json'a kaydet
 def save_users(users_dict):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(users_dict, f, ensure_ascii=False, indent=2)
 
-# ---- Giriş ----
 @app.route('/', methods=['GET', 'POST'])
 def login():
     users = load_users()
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
+
         if username in users and users[username]["password"] == password:
             role = users[username].get("role", "student")
             if role == "admin":
@@ -53,55 +50,66 @@ def login():
             return "Hatalı kullanıcı adı veya şifre!"
     return render_template("login.html")
 
-# ---- Çıkış ----
 @app.route('/logout')
 def logout():
     return redirect(url_for('login'))
 
-# ---- Öğrenci Paneli ----
 @app.route('/student/<username>')
 def student_panel(username):
     users = load_users()
     user = users.get(username)
     if not user:
         return "Kullanıcı bulunamadı!"
+
     grades = user.get("grades", {})
 
-    # Ortalama hesaplama
     def calc_average(grades_dict):
-        vals = [v for v in grades_dict.values() if v is not None]
-        return round(sum(vals)/len(vals),2) if vals else ''
-    
+        vals = [v for v in grades_dict.values() if isinstance(v, (int, float))]
+        return round(sum(vals)/len(vals),2) if vals else 0
+
     average_1 = calc_average(grades.get("1_donem", {}))
     average_2 = calc_average(grades.get("2_donem", {}))
-    year_average = round((average_1 + average_2)/2,2) if average_1 and average_2 else ''
+    year_average = round((average_1 + average_2)/2,2) if (average_1 or average_2) else 0
 
-    return render_template("student.html", username=username, grades=grades, average=average_1, average2=average_2, year_average=year_average)
+    return render_template(
+        "student.html",
+        username=username,
+        grades=grades,
+        average=average_1,
+        average2=average_2,
+        year_average=year_average
+    )
 
-# ---- Admin Paneli ----
 @app.route('/admin/<username>', methods=['GET', 'POST'])
 def admin_panel(username):
     users = load_users()
+
     if username not in users or users[username].get("role") != "admin":
         return "Yetkisiz erişim!"
 
-    message = None
     if request.method == "POST":
-        # Formdan gelen tüm notları kaydet
+        form_type = request.form.get("form_type")
+
         for u, info in users.items():
             if info.get("role") == "student":
-                # 1. dönem
-                for key in info["grades"]["1_donem"].keys():
-                    val = request.form.get(f"grades_1_{u}_{key}", "").strip()
-                    info["grades"]["1_donem"][key] = int(val) if val.isdigit() else None
-                # 2. dönem
-                for key in info["grades"]["2_donem"].keys():
-                    val = request.form.get(f"grades_2_{u}_{key}", "").strip()
-                    info["grades"]["2_donem"][key] = int(val) if val.isdigit() else None
-        save_users(users)
-        message = "Notlar kaydedildi!"
 
-    return render_template("admin.html", users=users, username=username, message=message)
+                # 1. DÖNEM
+                if form_type == "1":
+                    for key in info["grades"]["1_donem"].keys():
+                        val = request.form.get(f"grades_1_{u}_{key}", "").strip()
+                        if val != "":
+                            info["grades"]["1_donem"][key] = int(val)
+
+                # 2. DÖNEM
+                elif form_type == "2":
+                    for key in info["grades"]["2_donem"].keys():
+                        val = request.form.get(f"grades_2_{u}_{key}", "").strip()
+                        if val != "":
+                            info["grades"]["2_donem"][key] = int(val)
+
+        save_users(users)
+
+    return render_template("admin.html", users=users, username=username)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
