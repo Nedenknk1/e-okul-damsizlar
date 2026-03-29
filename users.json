@@ -1,0 +1,87 @@
+{
+  "Talha": {
+    "password": "0627",
+    "role": "admin",
+    "grades": {}
+  },
+  "Yiğit": {
+    "password": "0205",
+    "role": "student",
+    "level": "2. Seviye",
+    "grades": {
+      "1_donem": {
+        "yazili1": 55.0,
+        "yazili2": 43.0,
+        "perf1": 68.0,
+        "perf2": 79.0
+      },
+      "2_donem": {
+        "yazili1": 69.0,
+        "yazili2": null,
+        "perf1": 47.0,
+        "perf2": null,
+        "proje": null
+      }
+    }
+  },
+  "Berke": {
+    "password": "0895",
+    "role": "student",
+    "level": "1. Seviye",
+    "grades": {
+      "1_donem": {
+        "yazili1": 75.0,
+        "yazili2": 82.0,
+        "perf1": 61.0,
+        "perf2": 50.0
+      },
+      "2_donem": {
+        "yazili1": 63.0,
+        "yazili2": null,
+        "perf1": 65.0,
+        "perf2": null,
+        "proje": null
+      }
+    }
+  },
+  "Emre": {
+    "password": "1234",
+    "role": "student",
+    "level": "2. Seviye",
+    "grades": {
+      "1_donem": {
+        "yazili1": 55.0,
+        "yazili2": 79.0,
+        "perf1": 64.0,
+        "perf2": 59.0
+      },
+      "2_donem": {
+        "yazili1": 70.0,
+        "yazili2": null,
+        "perf1": 75.0,
+        "perf2": null,
+        "proje": null
+      }
+    }
+  },
+  "Mert": {
+    "password": "0389",
+    "role": "student",
+    "level": "2. Seviye",
+    "grades": {
+      "1_donem": {
+        "yazili1": 0.0,
+        "yazili2": 73.0,
+        "perf1": 74.0,
+        "perf2": 63.0
+      },
+      "2_donem": {
+        "yazili1": 56.0,
+        "yazili2": null,
+        "perf1": 35.0,
+        "perf2": null,
+        "proje": null
+      }
+    }
+  }
+}

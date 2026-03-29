@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ username }} - Notlar</title>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
 <header>
     <a class="logout" href="{{ url_for('logout') }}">Çıkış Yap</a>
 </header>
 
 <div class="container">
+
     <h2>Notlar</h2>
 
     <div class="tabs">
@@ -23,11 +25,12 @@
         <div class="grid">
             {% for key, val in grades.get('1_donem', {}).items() %}
             <div class="grade-box">
-                <div class="grade-title">{{ key|capitalize }}</div>
+                <div class="grade-title">{{ key }}</div>
                 <div class="grade-value">{{ val if val is not none else '' }}</div>
             </div>
             {% endfor %}
         </div>
+
         <div class="average-box">Ortalama: {{ average }}</div>
     </div>
 
@@ -36,24 +39,28 @@
         <div class="grid">
             {% for key, val in grades.get('2_donem', {}).items() %}
             <div class="grade-box">
-                <div class="grade-title">{{ key|capitalize }}</div>
+                <div class="grade-title">{{ key }}</div>
                 <div class="grade-value">{{ val if val is not none else '' }}</div>
             </div>
             {% endfor %}
         </div>
-        <div class="average-box">Dönem Ortalaması: {{ average2 }} | Yıl Sonu: {{ year_average }}</div>
+
+        <div class="average-box">
+            Dönem Ortalaması: {{ average2 }} | Yıl Sonu: {{ year_average }}
+        </div>
     </div>
+
 </div>
 
 <script>
 function showTab(tabId) {
-    var tabs = document.querySelectorAll('.tab');
-    var contents = document.querySelectorAll('.tab-content');
-    tabs.forEach(t => t.classList.remove('active'));
-    contents.forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
     document.querySelector('.tab[onclick="showTab(\''+tabId+'\')"]').classList.add('active');
     document.getElementById(tabId).classList.add('active');
 }
 </script>
+
 </body>
 </html>

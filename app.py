@@ -1,65 +1,70 @@
 from flask import Flask, render_template, request, redirect, url_for
-import json
-import os
+import json, os
 
 app = Flask(__name__)
 
-USERS_FILE = "users.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_FILE = os.path.join(BASE_DIR, "users.json")
 
-if not os.path.exists(USERS_FILE):
-    users = {
-        "Talha": {"password":"0627","role":"admin","grades":{}},
-        "Yiğit": {"password":"0205","role":"student","level":"2. Seviye",
-                  "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
-                            "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
-        "Berke": {"password":"0895","role":"student","level":"1. Seviye",
-                  "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
-                            "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
-        "Emre": {"password":"1234","role":"student","level":"2. Seviye",
-                  "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
-                            "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
-        "Mert": {"password":"0389","role":"student","level":"2. Seviye",
-                  "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
-                            "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}}
-    }
 
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(users, f, ensure_ascii=False, indent=2)
+def init_users():
+    if not os.path.exists(USERS_FILE):
+        users = {
+            "Talha": {"password":"0627","role":"admin","grades":{}},
+            "Yiğit": {"password":"0205","role":"student","level":"2. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
+            "Berke": {"password":"0895","role":"student","level":"1. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
+            "Emre": {"password":"1234","role":"student","level":"2. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
+            "Mert": {"password":"0389","role":"student","level":"2. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}}
+        }
+        with open(USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(users, f, ensure_ascii=False, indent=2)
 
 
 def load_users():
+    init_users()
     with open(USERS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def save_users(users_dict):
+def save_users(users):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(users_dict, f, ensure_ascii=False, indent=2)
+        json.dump(users, f, ensure_ascii=False, indent=2)
 
 
-@app.route('/', methods=['GET', 'POST'])
+def avg(d):
+    vals = [v for v in d.values() if isinstance(v, (int, float))]
+    return round(sum(vals) / len(vals), 2) if vals else 0
+
+
+@app.route('/', methods=['GET','POST'])
 def login():
     users = load_users()
 
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "").strip()
+        u = request.form.get("username","").strip()
+        p = request.form.get("password","").strip()
 
-        if username in users and users[username]["password"] == password:
-            role = users[username].get("role", "student")
-            if role == "admin":
-                return redirect(url_for("admin_panel", username=username))
-            else:
-                return redirect(url_for("student_panel", username=username))
+        if u in users and users[u]["password"] == p:
+            if users[u]["role"] == "admin":
+                return redirect(url_for("admin_panel", username=u))
+            return redirect(url_for("student_panel", username=u))
 
-        return "Hatalı kullanıcı adı veya şifre!"
+        return "Hatalı giriş!"
 
     return render_template("login.html")
 
 
 @app.route('/logout')
 def logout():
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
 @app.route('/student/<username>')
@@ -67,56 +72,50 @@ def student_panel(username):
     users = load_users()
     user = users.get(username)
 
-    if not user:
-        return "Kullanıcı bulunamadı!"
+    grades = user["grades"]
 
-    grades = user.get("grades", {})
-
-    def calc_average(grades_dict):
-        vals = [v for v in grades_dict.values() if isinstance(v, (int, float))]
-        return round(sum(vals)/len(vals), 2) if vals else 0
-
-    average_1 = calc_average(grades.get("1_donem", {}))
-    average_2 = calc_average(grades.get("2_donem", {}))
-    year_average = round((average_1 + average_2) / 2, 2) if (average_1 or average_2) else 0
+    a1 = avg(grades["1_donem"])
+    a2 = avg(grades["2_donem"])
 
     return render_template(
         "student.html",
         username=username,
         grades=grades,
-        average=average_1,
-        average2=average_2,
-        year_average=year_average
+        average=a1,
+        average2=a2,
+        year_average=round((a1 + a2) / 2, 2)
     )
 
 
-@app.route('/admin/<username>', methods=['GET', 'POST'])
+@app.route('/admin/<username>', methods=['GET','POST'])
 def admin_panel(username):
     users = load_users()
 
-    if username not in users or users[username].get("role") != "admin":
-        return "Yetkisiz erişim!"
+    if username not in users or users[username]["role"] != "admin":
+        return "Yetkisiz!"
 
     if request.method == "POST":
         form_type = request.form.get("form_type")
 
         for u, info in users.items():
-            if info.get("role") != "student":
+            if info["role"] != "student":
                 continue
 
-            # 1. DÖNEM
             if form_type == "1":
-                for key in info["grades"]["1_donem"]:
-                    val = request.form.get(f"grades_1_{u}_{key}")
-                    if val is not None and val.strip().isdigit():
-                        info["grades"]["1_donem"][key] = int(val.strip())
+                for k in info["grades"]["1_donem"]:
+                    v = request.form.get(f"grades_1_{u}_{k}")
+                    if v is not None:
+                        v = v.strip()
+                        if v != "":
+                            info["grades"]["1_donem"][k] = float(v)
 
-            # 2. DÖNEM
             elif form_type == "2":
-                for key in info["grades"]["2_donem"]:
-                    val = request.form.get(f"grades_2_{u}_{key}")
-                    if val is not None and val.strip().isdigit():
-                        info["grades"]["2_donem"][key] = int(val.strip())
+                for k in info["grades"]["2_donem"]:
+                    v = request.form.get(f"grades_2_{u}_{k}")
+                    if v is not None:
+                        v = v.strip()
+                        if v != "":
+                            info["grades"]["2_donem"][k] = float(v)
 
         save_users(users)
         return redirect(url_for("admin_panel", username=username))
@@ -125,4 +124,4 @@ def admin_panel(username):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
