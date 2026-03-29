@@ -1,0 +1,167 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Login container minimal ve ortaya */
+.login-container {
+    width: 300px;
+    margin: 120px auto;
+    padding: 25px 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    font-weight: normal;
+    color: #333;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.login-container input[type="submit"] {
+    width: 100%;
+    padding: 9px;
+    margin-top: 15px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-container input[type="submit"]:hover {
+    background-color: #2980b9;
+}
+
+/* Responsive */
+@media screen and (max-width: 500px) {
+    .login-container { width: 90%; margin: 80px auto; }
+}
+
+/* Öğrenci panel container */
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background: #3498db;
+    color: white;
+    border-radius: 5px 5px 0 0;
+    margin-right: 3px;
+    transition: background-color 0.3s;
+}
+
+.tab.active {
+    background: #2980b9;
+}
+
+/* Tab content */
+.tab-content {
+    display: none;
+    padding: 10px;
+    background: #f9fbfc;
+    border: 1px solid #ccc;
+    border-radius: 0 5px 5px 5px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Grid 2x2 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+}
+
+.grade-box {
+    background: #ecf0f1;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.grade-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.grade-value {
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+/* Ortalama kutusu */
+.average-box {
+    text-align: right;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Admin Paneli Tablo */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+.admin-table th, .admin-table td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    background-color: #3498db;
+    color: white;
+}
+
+.admin-table input {
+    width: 60px;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.admin-table .cell-title {
+    font-size: 11px;
+    color: #555;
+    margin-bottom: 2px;
+    font-weight: bold;
+}
