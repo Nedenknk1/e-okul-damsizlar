@@ -90,24 +90,28 @@ def admin_panel(username):
     if request.method == "POST":
         form_type = request.form.get("form_type")
 
-        for u, info in users.items():
-            if info.get("role") == "student":
+        if request.method == "POST":
 
-                # 1. DÖNEM
-                if form_type == "1":
-                    for key in info["grades"]["1_donem"].keys():
-                        val = request.form.get(f"grades_1_{u}_{key}", "").strip()
-                        if val != "":
-                            info["grades"]["1_donem"][key] = int(val)
+    for u, info in users.items():
+        if info.get("role") == "student":
 
-                # 2. DÖNEM
-                elif form_type == "2":
-                    for key in info["grades"]["2_donem"].keys():
-                        val = request.form.get(f"grades_2_{u}_{key}", "").strip()
-                        if val != "":
-                            info["grades"]["2_donem"][key] = int(val)
+            # 1. DÖNEM
+            for key in info["grades"]["1_donem"]:
+                val = request.form.get(f"grades_1_{u}_{key}")
+                if val is not None:
+                    val = val.strip()
+                    if val.isdigit():
+                        info["grades"]["1_donem"][key] = int(val)
 
-        save_users(users)
+            # 2. DÖNEM
+            for key in info["grades"]["2_donem"]:
+                val = request.form.get(f"grades_2_{u}_{key}")
+                if val is not None:
+                    val = val.strip()
+                    if val.isdigit():
+                        info["grades"]["2_donem"][key] = int(val)
+
+    save_users(users)
 
     return render_template("admin.html", users=users, username=username)
 
