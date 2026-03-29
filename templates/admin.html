@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Paneli</title>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
 <header>
     <a class="logout" href="{{ url_for('logout') }}">Çıkış Yap</a>
     <h2>Admin Paneli</h2>
 </header>
 
 <div class="container">
+
     <div class="tabs">
         <div class="tab active" onclick="showTab('donem1')">1. Dönem</div>
         <div class="tab" onclick="showTab('donem2')">2. Dönem</div>
@@ -20,15 +22,17 @@
     <!-- 1. Dönem -->
     <div id="donem1" class="tab-content active">
         <form method="post">
+        <input type="hidden" name="form_type" value="1">
+
         <table class="admin-table">
             <thead>
                 <tr>
                     <th>Öğrenci</th>
                     <th>Seviye</th>
-                    <th>1. Yazılı</th>
-                    <th>2. Yazılı</th>
-                    <th>1. Performans</th>
-                    <th>2. Performans</th>
+                    <th>1.Yazılı</th>
+                    <th>2.Yazılı</th>
+                    <th>1.Perf</th>
+                    <th>2.Perf</th>
                     <th>Ortalama</th>
                 </tr>
             </thead>
@@ -38,12 +42,15 @@
                     <tr>
                         <td>{{ username }}</td>
                         <td>{{ info.level }}</td>
+
                         {% for key in ["yazili1","yazili2","perf1","perf2"] %}
                         <td>
-                            <div class="cell-title">{{ key|capitalize }}</div>
-                            <input type="text" name="grades_1_{{ username }}_{{ key }}" value="{{ info.grades['1_donem'][key] if info.grades['1_donem'][key] is not none else '' }}">
+                            <input type="text"
+                                   name="grades_1_{{ username }}_{{ key }}"
+                                   value="{{ info.grades['1_donem'][key] if info.grades['1_donem'][key] is not none else '' }}">
                         </td>
                         {% endfor %}
+
                         <td>
                             {% set vals = info.grades['1_donem'].values() | select('number') | list %}
                             {{ (vals | sum / vals|length) | round(2) if vals else '' }}
@@ -53,6 +60,7 @@
                 {% endfor %}
             </tbody>
         </table>
+
         <input type="submit" value="Notları Kaydet">
         </form>
     </div>
@@ -60,18 +68,19 @@
     <!-- 2. Dönem -->
     <div id="donem2" class="tab-content">
         <form method="post">
+        <input type="hidden" name="form_type" value="2">
+
         <table class="admin-table">
             <thead>
                 <tr>
                     <th>Öğrenci</th>
                     <th>Seviye</th>
-                    <th>1. Yazılı</th>
-                    <th>2. Yazılı</th>
-                    <th>1. Performans</th>
-                    <th>2. Performans</th>
+                    <th>1.Yazılı</th>
+                    <th>2.Yazılı</th>
+                    <th>1.Perf</th>
+                    <th>2.Perf</th>
                     <th>Proje</th>
-                    <th>Dönem Ortalaması</th>
-                    <th>Yıl Sonu</th>
+                    <th>Ortalama</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,45 +89,40 @@
                     <tr>
                         <td>{{ username }}</td>
                         <td>{{ info.level }}</td>
+
                         {% for key in ["yazili1","yazili2","perf1","perf2","proje"] %}
                         <td>
-                            <div class="cell-title">{{ key|capitalize }}</div>
-                            <input type="text" name="grades_2_{{ username }}_{{ key }}" value="{{ info.grades['2_donem'][key] if info.grades['2_donem'][key] is not none else '' }}">
+                            <input type="text"
+                                   name="grades_2_{{ username }}_{{ key }}"
+                                   value="{{ info.grades['2_donem'][key] if info.grades['2_donem'][key] is not none else '' }}">
                         </td>
                         {% endfor %}
+
                         <td>
                             {% set vals = info.grades['2_donem'].values() | select('number') | list %}
                             {{ (vals | sum / vals|length) | round(2) if vals else '' }}
-                        </td>
-                        <td>
-                            {% set total = [] %}
-                            {% for v in info.grades['1_donem'].values() | list %}
-                                {% if v is number %}{% set _ = total.append(v) %}{% endif %}
-                            {% endfor %}
-                            {% for v in info.grades['2_donem'].values() | list %}
-                                {% if v is number %}{% set _ = total.append(v) %}{% endif %}
-                            {% endfor %}
-                            {{ (total|sum / total|length) | round(2) if total else '' }}
                         </td>
                     </tr>
                     {% endif %}
                 {% endfor %}
             </tbody>
         </table>
+
         <input type="submit" value="Notları Kaydet">
         </form>
     </div>
+
 </div>
 
 <script>
-function showTab(tabId) {
-    var tabs = document.querySelectorAll('.tab');
-    var contents = document.querySelectorAll('.tab-content');
-    tabs.forEach(t => t.classList.remove('active'));
-    contents.forEach(c => c.classList.remove('active'));
-    document.querySelector('.tab[onclick="showTab(\''+tabId+'\')"]').classList.add('active');
+function showTab(tabId){
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+    document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
     document.getElementById(tabId).classList.add('active');
 }
 </script>
+
 </body>
 </html>
