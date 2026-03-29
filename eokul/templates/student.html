@@ -2,34 +2,30 @@
 <html>
 <head>
     <title>Öğrenci Paneli</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
-        h2 { margin-top: 20px; }
-        table { margin: 20px auto; border-collapse: collapse; width: 90%; background: #fff; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background-color: #1f4e79; color: white; }
-    </style>
 </head>
 <body>
-    <h2>{{ session['username'] }} - Notlarınız</h2>
-    <table>
-        <tr>
-            <th>Dönem</th><th>1.Yazılı</th><th>2.Yazılı</th>
-            <th>1.Perf</th><th>2.Perf</th><th>Proje</th><th>Ort</th><th>Yıl Sonu</th>
-        </tr>
-        {% for d in data %}
-        <tr>
-            <td>{{ d[2] }}</td>
-            <td>{{ '' if d[3] is none else d[3] }}</td>
-            <td>{{ '' if d[4] is none else d[4] }}</td>
-            <td>{{ '' if d[5] is none else d[5] }}</td>
-            <td>{{ '' if d[6] is none else d[6] }}</td>
-            <td>{{ '' if d[7] is none else d[7] }}</td>
-            <td>{{ '' if d[8] is none else d[8] }}</td>
-            <td>{{ '' if d[9] is none else d[9] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+
+<h2>{{ username }} - Notlarınız</h2>
+
+<table border="1">
+<tr>
+    <th>Dönem</th><th>Y1</th><th>Y2</th><th>P1</th><th>P2</th><th>Proje</th><th>Ort</th><th>Yıl Sonu</th>
+</tr>
+
+{% for d in data %}
+<tr>
+    <td>{{ d[2] }}</td>
+    <td>{{ d[3] or '' }}</td>
+    <td>{{ d[4] or '' }}</td>
+    <td>{{ d[5] or '' }}</td>
+    <td>{{ d[6] or '' }}</td>
+    <td>{{ d[7] or '' }}</td>
+    <td>{{ d[8] or '' }}</td>
+    <td>{{ d[9] or '' }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
 </body>
 </html>
