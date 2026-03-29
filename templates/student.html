@@ -1,59 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>{{ username }} - Notlar</title>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Öğrenci Paneli</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        h2 { margin-top: 20px; }
+        table { margin: 20px auto; border-collapse: collapse; width: 90%; background: #fff; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #1f4e79; color: white; }
+    </style>
 </head>
 <body>
-<header>
-    <a class="logout" href="{{ url_for('logout') }}">Çıkış Yap</a>
-</header>
-
-<div class="container">
-    <h2>Notlar</h2>
-
-    <div class="tabs">
-        <div class="tab active" onclick="showTab('donem1')">1. Dönem</div>
-        <div class="tab" onclick="showTab('donem2')">2. Dönem</div>
-    </div>
-
-    <!-- 1. Dönem -->
-    <div id="donem1" class="tab-content active">
-        <div class="grid">
-            {% for key, val in grades.get('1_donem', {}).items() %}
-            <div class="grade-box">
-                <div class="grade-title">{{ key|capitalize }}</div>
-                <div class="grade-value">{{ val if val is not none else '' }}</div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="average-box">Ortalama: {{ average }}</div>
-    </div>
-
-    <!-- 2. Dönem -->
-    <div id="donem2" class="tab-content">
-        <div class="grid">
-            {% for key, val in grades.get('2_donem', {}).items() %}
-            <div class="grade-box">
-                <div class="grade-title">{{ key|capitalize }}</div>
-                <div class="grade-value">{{ val if val is not none else '' }}</div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="average-box">Dönem Ortalaması: {{ average2 }} | Yıl Sonu: {{ year_average }}</div>
-    </div>
-</div>
-
-<script>
-function showTab(tabId) {
-    var tabs = document.querySelectorAll('.tab');
-    var contents = document.querySelectorAll('.tab-content');
-    tabs.forEach(t => t.classList.remove('active'));
-    contents.forEach(c => c.classList.remove('active'));
-    document.querySelector('.tab[onclick="showTab(\''+tabId+'\')"]').classList.add('active');
-    document.getElementById(tabId).classList.add('active');
-}
-</script>
+    <h2>{{ session['username'] }} - Notlarınız</h2>
+    <table>
+        <tr>
+            <th>Dönem</th><th>1.Yazılı</th><th>2.Yazılı</th>
+            <th>1.Perf</th><th>2.Perf</th><th>Proje</th><th>Ort</th><th>Yıl Sonu</th>
+        </tr>
+        {% for d in data %}
+        <tr>
+            <td>{{ d[2] }}</td>
+            <td>{{ '' if d[3] is none else d[3] }}</td>
+            <td>{{ '' if d[4] is none else d[4] }}</td>
+            <td>{{ '' if d[5] is none else d[5] }}</td>
+            <td>{{ '' if d[6] is none else d[6] }}</td>
+            <td>{{ '' if d[7] is none else d[7] }}</td>
+            <td>{{ '' if d[8] is none else d[8] }}</td>
+            <td>{{ '' if d[9] is none else d[9] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
