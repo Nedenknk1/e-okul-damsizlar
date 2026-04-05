@@ -105,17 +105,21 @@ def admin_panel(username):
                 for k in info["grades"]["1_donem"]:
                     v = request.form.get(f"grades_1_{u}_{k}")
                     if v is not None:
-                        v = v.strip()
-                        if v != "":
-                            info["grades"]["1_donem"][k] = float(v)
+    v = v.strip()
+    if v == "":
+        info["grades"]["1_donem"][k] = None
+    else:
+        info["grades"]["1_donem"][k] = float(v)
 
             elif form_type == "2":
                 for k in info["grades"]["2_donem"]:
                     v = request.form.get(f"grades_2_{u}_{k}")
                     if v is not None:
-                        v = v.strip()
-                        if v != "":
-                            info["grades"]["2_donem"][k] = float(v)
+    v = v.strip()
+    if v == "":
+        info["grades"]["2_donem"][k] = None
+    else:
+        info["grades"]["2_donem"][k] = float(v)
 
         save_users(users)
         return redirect(url_for("admin_panel", username=username))
