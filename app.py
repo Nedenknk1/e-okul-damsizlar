@@ -1,205 +1,125 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Paneli</title>
+from flask import Flask, render_template, request, redirect, url_for
+import json, os
 
-  <style>
-    body{
-      font-family: Arial;
-      background:#f4f6f8;
-      margin:0;
-    }
+app = Flask(__name__)
 
-    header{
-      background:#222;
-      color:white;
-      padding:15px;
-      text-align:center;
-    }
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_FILE = os.path.join(BASE_DIR, "users.json")
 
-    .container{
-      width:95%;
-      margin:auto;
-      margin-top:20px;
-    }
 
-    .tabs{
-      display:flex;
-      gap:10px;
-      margin-bottom:10px;
-    }
+def init_users():
+    if not os.path.exists(USERS_FILE):
+        users = {
+            "Talha": {"password":"0627","role":"admin","grades":{}},
+            "Yiğit": {"password":"0205","role":"student","level":"2. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
+            "Berke": {"password":"0895","role":"student","level":"1. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
+            "Emre": {"password":"1234","role":"student","level":"2. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}},
+            "Mert": {"password":"0389","role":"student","level":"2. Seviye",
+                      "grades":{"1_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None},
+                                "2_donem":{"yazili1":None,"yazili2":None,"perf1":None,"perf2":None,"proje":None}}}
+        }
+        with open(USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(users, f, ensure_ascii=False, indent=2)
 
-    .tab{
-      padding:10px 20px;
-      background:#ddd;
-      cursor:pointer;
-      border-radius:6px;
-    }
 
-    .tab.active{
-      background:#4a90e2;
-      color:white;
-    }
+def load_users():
+    init_users()
+    with open(USERS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    .tab-content{
-      display:none;
-      background:white;
-      padding:15px;
-      border-radius:10px;
-      box-shadow:0 0 10px rgba(0,0,0,0.1);
-    }
 
-    .tab-content.active{
-      display:block;
-    }
+def save_users(users):
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, ensure_ascii=False, indent=2)
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-    }
 
-    th,td{
-      border:1px solid #ddd;
-      padding:8px;
-      text-align:center;
-    }
+def avg(d):
+    vals = [v for v in d.values() if isinstance(v, (int, float))]
+    return round(sum(vals) / len(vals), 2) if vals else 0
 
-    input{
-      width:60px;
-      text-align:center;
-    }
 
-    .logout{
-      float:right;
-      color:white;
-      text-decoration:none;
-      margin-right:20px;
-    }
-  </style>
-</head>
+@app.route('/', methods=['GET','POST'])
+def login():
+    users = load_users()
 
-<body>
+    if request.method == "POST":
+        u = request.form.get("username","").strip()
+        p = request.form.get("password","").strip()
 
-<header>
-  <a class="logout" href="{{ url_for('logout') }}">Çıkış Yap</a>
-  <h2>Admin Paneli</h2>
-</header>
+        if u in users and users[u]["password"] == p:
+            if users[u]["role"] == "admin":
+                return redirect(url_for("admin_panel", username=u))
+            return redirect(url_for("student_panel", username=u))
 
-<div class="container">
+        return "Hatalı giriş!"
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab('d1')">1. Dönem</div>
-  <div class="tab" onclick="showTab('d2')">2. Dönem</div>
-</div>
+    return render_template("login.html")
 
-<!-- 1. DÖNEM -->
-<div id="d1" class="tab-content active">
-<form method="post">
-<input type="hidden" name="form_type" value="1">
 
-<table>
-<tr>
-<th>Öğrenci</th>
-<th>1.Yazılı</th>
-<th>2.Yazılı</th>
-<th>1.Perf</th>
-<th>2.Perf</th>
-<th>Ortalama</th>
-</tr>
+@app.route('/logout')
+def logout():
+    return redirect(url_for("login"))
 
-{% for u, info in users.items() %}
-{% if info.role == "student" %}
-<tr>
-<td>{{ u }}</td>
 
-{% for k in ["yazili1","yazili2","perf1","perf2"] %}
-<td>
-<input name="grades_1_{{u}}_{{k}}" value="{{ info.grades['1_donem'][k] if info.grades['1_donem'][k] is not none else '' }}">
-</td>
-{% endfor %}
+@app.route('/student/<username>')
+def student_panel(username):
+    users = load_users()
+    user = users.get(username)
 
-<td>
-{% set v = info.grades['1_donem'].values() | select('number') | list %}
-{{ (v|sum / v|length)|round(2) if v else '' }}
-</td>
+    grades = user["grades"]
 
-</tr>
-{% endif %}
-{% endfor %}
-</table>
+    a1 = avg(grades["1_donem"])
+    a2 = avg(grades["2_donem"])
 
-<br>
-<button type="submit">Kaydet</button>
-</form>
-</div>
+    return render_template(
+        "student.html",
+        username=username,
+        grades=grades,
+        average=a1,
+        average2=a2,
+        year_average=round((a1 + a2) / 2, 2)
+    )
 
-<!-- 2. DÖNEM -->
-<div id="d2" class="tab-content">
-<form method="post">
-<input type="hidden" name="form_type" value="2">
 
-<table>
-<tr>
-<th>Öğrenci</th>
-<th>1.Yazılı</th>
-<th>2.Yazılı</th>
-<th>1.Perf</th>
-<th>2.Perf</th>
-<th>Proje</th>
-<th>2.Dönem Ort</th>
-<th>Yıl Sonu</th>
-</tr>
+@app.route('/admin/<username>', methods=['GET','POST'])
+def admin_panel(username):
+    users = load_users()
 
-{% for u, info in users.items() %}
-{% if info.role == "student" %}
-<tr>
-<td>{{ u }}</td>
+    if username not in users or users[username]["role"] != "admin":
+        return "Yetkisiz!"
 
-{% for k in ["yazili1","yazili2","perf1","perf2","proje"] %}
-<td>
-<input name="grades_2_{{u}}_{{k}}" value="{{ info.grades['2_donem'][k] if info.grades['2_donem'][k] is not none else '' }}">
-</td>
-{% endfor %}
+    if request.method == "POST":
+        form_type = request.form.get("form_type")
 
-<!-- 2 dönem ort -->
-<td>
-{% set v2 = info.grades['2_donem'].values() | select('number') | list %}
-{{ (v2|sum / v2|length)|round(2) if v2 else '' }}
-</td>
+        for u, info in users.items():
+            if info["role"] != "student":
+                continue
 
-<!-- yıl sonu -->
-<td>
-{% set v1 = info.grades['1_donem'].values() | select('number') | list %}
-{% set v2 = info.grades['2_donem'].values() | select('number') | list %}
+            if form_type == "1":
+                for k in info["grades"]["1_donem"]:
+                    v = request.form.get(f"grades_1_{u}_{k}")
+                    if v is not None:
+                        v = v.strip()
+                        info["grades"]["1_donem"][k] = float(v) if v != "" else None
 
-{% set a1 = (v1|sum / v1|length) if v1 else 0 %}
-{% set a2 = (v2|sum / v2|length) if v2 else 0 %}
+            elif form_type == "2":
+                for k in info["grades"]["2_donem"]:
+                    v = request.form.get(f"grades_2_{u}_{k}")
+                    if v is not None:
+                        v = v.strip()
+                        info["grades"]["2_donem"][k] = float(v) if v != "" else None
 
-{{ ((a1 + a2) / 2) | round(2) }}
-</td>
+        save_users(users)
+        return redirect(url_for("admin_panel", username=username))
 
-</tr>
-{% endif %}
-{% endfor %}
-</table>
+    return render_template("admin.html", users=users, username=username)
 
-<br>
-<button type="submit">Kaydet</button>
-</form>
-</div>
 
-</div>
-
-<script>
-function showTab(id){
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-  document.querySelector(`[onclick="showTab('${id}')"]`).classList.add('active');
-  document.getElementById(id).classList.add('active');
-}
-</script>
-
-</body>
-</html>
+if __name__ == "__main__":
+    app.run()

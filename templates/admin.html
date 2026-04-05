@@ -115,14 +115,27 @@
 
 {% for k in ["yazili1","yazili2","perf1","perf2"] %}
 <td>
-<input name="grades_1_{{u}}_{{k}}" value="{{ info.grades['1_donem'][k] if info.grades['1_donem'][k] is not none else '' }}">
+<input name="grades_1_{{u}}_{{k}}"
+value="{{ info.grades['1_donem'][k] if info.grades['1_donem'][k] is not none else '' }}">
 </td>
 {% endfor %}
 
-<td>
-{% set v = info.grades['1_donem'].values() | select('number') | list %}
-{{ (v|sum / v|length)|round(2) if v else '' }}
-</td>
+<td>{{ ([
+info.grades['1_donem']['yazili1'],
+info.grades['1_donem']['yazili2'],
+info.grades['1_donem']['perf1'],
+info.grades['1_donem']['perf2']
+] | select('number') | list | sum / ([
+info.grades['1_donem']['yazili1'],
+info.grades['1_donem']['yazili2'],
+info.grades['1_donem']['perf1'],
+info.grades['1_donem']['perf2']
+] | select('number') | list | length)) if ([
+info.grades['1_donem']['yazili1'],
+info.grades['1_donem']['yazili2'],
+info.grades['1_donem']['perf1'],
+info.grades['1_donem']['perf2']
+] | select('number') | list) else "" }}</td>
 
 </tr>
 {% endif %}
@@ -158,23 +171,46 @@
 
 {% for k in ["yazili1","yazili2","perf1","perf2","proje"] %}
 <td>
-<input name="grades_2_{{u}}_{{k}}" value="{{ info.grades['2_donem'][k] if info.grades['2_donem'][k] is not none else '' }}">
+<input name="grades_2_{{u}}_{{k}}"
+value="{{ info.grades['2_donem'][k] if info.grades['2_donem'][k] is not none else '' }}">
 </td>
 {% endfor %}
 
-<!-- 2 dönem ort -->
-<td>
-{% set v2 = info.grades['2_donem'].values() | select('number') | list %}
-{{ (v2|sum / v2|length)|round(2) if v2 else '' }}
-</td>
+<td>{{ ([
+info.grades['2_donem']['yazili1'],
+info.grades['2_donem']['yazili2'],
+info.grades['2_donem']['perf1'],
+info.grades['2_donem']['perf2'],
+info.grades['2_donem']['proje']
+] | select('number') | list | sum / ([
+info.grades['2_donem']['yazili1'],
+info.grades['2_donem']['yazili2'],
+info.grades['2_donem']['perf1'],
+info.grades['2_donem']['perf2'],
+info.grades['2_donem']['proje']
+] | select('number') | list | length)) if ([
+info.grades['2_donem']['yazili1'],
+info.grades['2_donem']['yazili2'],
+info.grades['2_donem']['perf1'],
+info.grades['2_donem']['perf2'],
+info.grades['2_donem']['proje']
+] | select('number') | list) else "" }}</td>
 
-<!-- yıl sonu -->
 <td>
-{% set v1 = info.grades['1_donem'].values() | select('number') | list %}
-{% set v2 = info.grades['2_donem'].values() | select('number') | list %}
+{% set a1 = ([
+info.grades['1_donem']['yazili1'],
+info.grades['1_donem']['yazili2'],
+info.grades['1_donem']['perf1'],
+info.grades['1_donem']['perf2']
+] | select('number') | list | sum / 4) %}
 
-{% set a1 = (v1|sum / v1|length) if v1 else 0 %}
-{% set a2 = (v2|sum / v2|length) if v2 else 0 %}
+{% set a2 = ([
+info.grades['2_donem']['yazili1'],
+info.grades['2_donem']['yazili2'],
+info.grades['2_donem']['perf1'],
+info.grades['2_donem']['perf2'],
+info.grades['2_donem']['proje']
+] | select('number') | list | sum / 5) %}
 
 {{ ((a1 + a2) / 2) | round(2) }}
 </td>
