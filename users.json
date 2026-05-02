@@ -38,9 +38,9 @@
       "2_donem": {
         "yazili1": 63.0,
         "yazili2": null,
-        "perf1": 65.0,
+        "perf1": 70.0,
         "perf2": null,
-        "proje": null
+        "proje": 70.0
       }
     }
   },
@@ -78,9 +78,9 @@
       "2_donem": {
         "yazili1": 56.0,
         "yazili2": null,
-        "perf1": 35.0,
+        "perf1": 45.0,
         "perf2": null,
-        "proje": null
+        "proje": 0.0
       }
     }
   }
